@@ -5,7 +5,7 @@
 
 `default_nettype none
 
-module tt_um_example (
+module tt_um_fhw_appel_spiPWMio (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -16,12 +16,33 @@ module tt_um_example (
     input  wire       rst_n     // reset_n - low to reset
 );
 
+
+  pwm_inout_top top_inst
+    (
+    .clk(clk),
+    .rst_n(rst_n),
+    // SPI Interface
+    .spi_cs_n(uio_in[4]),
+    .spi_sck(uio_in[7]),
+    .spi_mosi(uio_in[5]),
+    .spi_miso(uio_out[6]),
+    // Inputs
+    .ipins(ui_in[6:0]),
+    .pwm_in(ui_in[7]),
+    // Outputs
+    .opins(uo_out[6:0]),
+    .pwm_sig(uo_out[7])
+  );
+
+
   // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+  assign uio_out[5:0] = 0;
+  assign uio_out[7] = 0;
+  assign uio_oe[5:0]  = 0;
+  assign uio_oe[7]  = 0;
+  assign uio_oe[6]  = 1;  // spi_miso is an output
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
+  wire _unused = &{ena, uio_in[6], uio_in[3:0], 1'b0};
 
 endmodule
